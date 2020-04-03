@@ -811,6 +811,25 @@ object FilesSuite extends tests.Suite {
     }
   }
 
+  test("Files.walkFileTree accepts a file as base path") {
+    withTemporaryDirectory { dirFile =>
+      val dir = dirFile.toPath()
+      val f0  = dir.resolve("f0")
+      Files.createFile(f0)
+
+      var visited = false
+      Files.walkFileTree(f0,
+        new SimpleFileVisitor[java.nio.file.Path] {
+          override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+            visited = true
+            FileVisitResult.CONTINUE
+          }
+        }
+      )
+      assert(visited)
+    }
+  }
+
   test("Files.walkFileTree can skip subtrees") {
     withTemporaryDirectory { dirFile =>
       val dir = dirFile.toPath()

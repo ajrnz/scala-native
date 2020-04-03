@@ -583,8 +583,10 @@ object Files {
                    currentDepth: Int,
                    options: Array[FileVisitOption],
                    visited: SSet[Path]): SStream[Path] = {
-    start #:: FileHelpers
-      .list(start.toString, (n, t) => (n, t))
+    if (!Files.isDirectory(start, Array.empty))
+      SStream(start)
+    else {
+    start #:: FileHelpers.list(start.toString, (n, t) => (n, t))
       .toStream
       .flatMap {
         case (name, tpe)
@@ -605,6 +607,7 @@ object Files {
         case (name, _) =>
           start.resolve(name) #:: SStream.Empty
       }
+    }
   }
 
   def walkFileTree(start: Path, visitor: FileVisitor[_ >: Path]): Path =
